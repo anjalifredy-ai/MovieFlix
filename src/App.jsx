@@ -305,4 +305,12 @@ export default function App() {
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 12, marginTop: 28 }}>
             <button onClick={() => setPage(p => Math.max(1,p-1))} disabled={page===1} style={{ padding: "8px 18px", borderRadius: 8, border: "1px solid #333", background: "transparent", color: page===1?"#333":"#fff", cursor: page===1?"default":"pointer", fontSize: 13 }}>← Prev</button>
             <span style={{ color: "#666", fontSize: 13 }}>{page} / {totalPages}</span>
-            <button onClick={() => setPage(p => Math.min(totalPages,p+1))} disabled={page===totalPages} style={{ padding: "8px 18px", borderRadius: 8, border: "1px solid #333", background: "transparent", color: page===totalPage
+            <button onClick={() => setPage(p => Math.min(totalPages,p+1))} disabled={page===totalPages} style={{ padding: "8px 18px", borderRadius: 8, border: "1px solid #333", background: "transparent", color: page===totalPages?"#333":"#fff", cursor: page===totalPages?"default":"pointer", fontSize: 13 }}>Next →</button>
+          </div>
+        )}
+      </div>
+
+      {selected && <Modal item={selected} onClose={() => setSelected(null)} onWatchlist={toggleWatchlist} isInWatchlist={isInWatchlist(selected.id)} type={selectedType} />}
+    </div>
+  );
+}
