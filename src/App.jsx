@@ -30,17 +30,11 @@ function Card({ item, onClick, isInWatchlist, onWatchlist, type }) {
   const [hovered, setHovered] = useState(false);
   const title = item.title || item.name || "";
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{ position: "relative", borderRadius: 12, overflow: "hidden", cursor: "pointer", transition: "transform 0.25s", transform: hovered ? "scale(1.04)" : "scale(1)", background: "#1a1a2e" }}
-    >
+    <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+      style={{ position: "relative", borderRadius: 12, overflow: "hidden", cursor: "pointer", transition: "transform 0.25s", transform: hovered ? "scale(1.04)" : "scale(1)", background: "#1a1a2e" }}>
       <div onClick={() => onClick(item, type)}>
-        <img
-          src={item.poster_path ? `${IMG}${item.poster_path}` : "https://via.placeholder.com/300x450/1a1a2e/fff?text=No+Image"}
-          alt={title}
-          style={{ width: "100%", aspectRatio: "2/3", objectFit: "cover", display: "block" }}
-        />
+        <img src={item.poster_path ? IMG + item.poster_path : "https://via.placeholder.com/300x450/1a1a2e/fff?text=No+Image"}
+          alt={title} style={{ width: "100%", aspectRatio: "2/3", objectFit: "cover", display: "block" }} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.9) 30%, transparent 70%)" }} />
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 8px" }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "#fff", marginBottom: 3 }}>{title}</div>
@@ -50,35 +44,37 @@ function Card({ item, onClick, isInWatchlist, onWatchlist, type }) {
           </div>
         </div>
       </div>
-      <button
-        onClick={(e) => { e.stopPropagation(); onWatchlist(item, type); }}
-        style={{ position: "absolute", top: 8, right: 8, background: isInWatchlist ? "#e50914" : "rgba(0,0,0,0.6)", border: "none", color: "#fff", width: 30, height: 30, borderRadius: "50%", cursor: "pointer", fontSize: 14 }}
-      >
+      <button onClick={(e) => { e.stopPropagation(); onWatchlist(item, type); }}
+        style={{ position: "absolute", top: 8, right: 8, background: isInWatchlist ? "#e50914" : "rgba(0,0,0,0.6)", border: "none", color: "#fff", width: 30, height: 30, borderRadius: "50%", cursor: "pointer", fontSize: 14 }}>
         {isInWatchlist ? "♥" : "♡"}
       </button>
     </div>
   );
 }
 
-function TrailerModal({ videoKey, onClose }) {
+function VideoPlayer({ item, type, onClose }) {
+  const embedUrl = type === "tv"
+    ? "https://vidsrc.to/embed/tv/" + item.id
+    : "https://vidsrc.to/embed/movie/" + item.id;
+  const title = item.title || item.name || "";
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.9)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 800, position: "relative" }}>
-        <button onClick={onClose} style={{ position: "absolute", top: -40, right: 0, background: "none", border: "none", color: "#fff", fontSize: 20, cursor: "pointer" }}>✕ Close</button>
-        <div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
-          <iframe
-            src={"https://www.youtube.com/embed/" + videoKey + "?autoplay=1"}
-            style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", borderRadius: 12, border: "none" }}
-            allowFullScreen
-            allow="autoplay"
-          />
-        </div>
+    <div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 200, display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", background: "rgba(0,0,0,0.8)" }}>
+        <div style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>{title}</div>
+        <button onClick={onClose} style={{ background: "#e50914", border: "none", color: "#fff", padding: "6px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 700 }}>✕ Close</button>
       </div>
+      <iframe
+        src={embedUrl}
+        style={{ flex: 1, border: "none", width: "100%", height: "100%" }}
+        allowFullScreen
+        allow="autoplay; fullscreen"
+        title={title}
+      />
     </div>
   );
 }
 
-function Modal({ item, onClose, onWatchlist, isInWatchlist, type }) {
+function Modal({ item, onClose, onWatchlist, isInWatchlist, type, onPlay }) {
   const [trailer, setTrailer] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
   const title = (item && (item.title || item.name)) || "";
@@ -88,39 +84,44 @@ function Modal({ item, onClose, onWatchlist, isInWatchlist, type }) {
     document.body.style.overflow = "hidden";
     const fetchTrailer = async () => {
       try {
-        const endpoint = (type === "tv") ? "tv/" + item.id + "/videos" : "movie/" + item.id + "/videos";
+        const endpoint = type === "tv" ? "tv/" + item.id + "/videos" : "movie/" + item.id + "/videos";
         const res = await fetch(BASE + "/" + endpoint + "?api_key=" + API_KEY);
         const data = await res.json();
         const yt = (data.results || []).find((v) => v.site === "YouTube" && v.type === "Trailer");
         setTrailer(yt ? yt.key : null);
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) { console.error(e); }
     };
     fetchTrailer();
     return () => { document.body.style.overflow = "auto"; };
   }, [item, type]);
 
   if (!item) return null;
-
   return (
     <>
-      {showTrailer && trailer && <TrailerModal videoKey={trailer} onClose={() => setShowTrailer(false)} />}
+      {showTrailer && trailer && (
+        <div onClick={() => setShowTrailer(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.9)", zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 800, position: "relative" }}>
+            <button onClick={() => setShowTrailer(false)} style={{ position: "absolute", top: -40, right: 0, background: "none", border: "none", color: "#fff", fontSize: 20, cursor: "pointer" }}>✕ Close</button>
+            <div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
+              <iframe src={"https://www.youtube.com/embed/" + trailer + "?autoplay=1"}
+                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", borderRadius: 12, border: "none" }}
+                allowFullScreen allow="autoplay" />
+            </div>
+          </div>
+        </div>
+      )}
       <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
         <div onClick={(e) => e.stopPropagation()} style={{ background: "#0f0f1a", borderRadius: 20, overflow: "hidden", maxWidth: 700, width: "100%", maxHeight: "90vh", overflowY: "auto", border: "1px solid rgba(255,255,255,0.08)", position: "relative" }}>
           {item.backdrop_path && (
-            <div style={{ position: "relative", height: 220 }}>
+            <div style={{ position: "relative", height: 200 }}>
               <img src={BACKDROP + item.backdrop_path} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent, #0f0f1a)" }} />
             </div>
           )}
           <button onClick={onClose} style={{ position: "absolute", top: 12, right: 12, background: "rgba(0,0,0,0.6)", border: "none", color: "#fff", width: 36, height: 36, borderRadius: "50%", cursor: "pointer", fontSize: 18, zIndex: 10 }}>×</button>
           <div style={{ padding: "20px 20px 28px", display: "flex", gap: 16, flexWrap: "wrap" }}>
-            <img
-              src={item.poster_path ? IMG + item.poster_path : "https://via.placeholder.com/120x180/1a1a2e/fff?text=No+Image"}
-              alt={title}
-              style={{ width: 110, height: 165, objectFit: "cover", borderRadius: 10, flexShrink: 0 }}
-            />
+            <img src={item.poster_path ? IMG + item.poster_path : "https://via.placeholder.com/110x165/1a1a2e/fff?text=No+Image"}
+              alt={title} style={{ width: 110, height: 165, objectFit: "cover", borderRadius: 10, flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 180 }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", marginBottom: 8 }}>{title}</div>
               <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap", alignItems: "center" }}>
@@ -132,34 +133,18 @@ function Modal({ item, onClose, onWatchlist, isInWatchlist, type }) {
               </div>
               <p style={{ fontSize: 13, color: "#ccc", lineHeight: 1.7, marginBottom: 14 }}>{item.overview || "No description available."}</p>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button onClick={() => { onClose(); onPlay(item, type); }}
+                  style={{ padding: "10px 20px", background: "#e50914", border: "none", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                  ▶ Watch Now
+                </button>
                 {trailer && (
-                  <button
-                    onClick={() => setShowTrailer(true)}
-                    style={{ padding: "9px 16px", background: "#e50914", border: "none", color: "#fff", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-                  >
-                    ▶ Trailer
+                  <button onClick={() => setShowTrailer(true)}
+                    style={{ padding: "10px 16px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>
+                    🎬 Trailer
                   </button>
                 )}
-                <a
-                  href={"https://www.hotstar.com/in/search?q=" + encodeURIComponent(title)}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ padding: "9px 14px", background: "#1a1a2e", border: "1px solid #1f80e0", color: "#1f80e0", borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}
-                >
-                  🎬 Hotstar
-                </a>
-                <a
-                  href={"https://www.sonyliv.com/search?q=" + encodeURIComponent(title)}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ padding: "9px 14px", background: "#1a1a2e", border: "1px solid #f5a623", color: "#f5a623", borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}
-                >
-                  📺 SonyLIV
-                </a>
-                <button
-                  onClick={() => onWatchlist(item, type)}
-                  style={{ padding: "9px 14px", background: isInWatchlist ? "rgba(229,9,20,0.2)" : "rgba(255,255,255,0.08)", border: "1px solid " + (isInWatchlist ? "#e50914" : "rgba(255,255,255,0.15)"), color: isInWatchlist ? "#e50914" : "#fff", borderRadius: 8, fontSize: 12, cursor: "pointer" }}
-                >
+                <button onClick={() => onWatchlist(item, type)}
+                  style={{ padding: "10px 14px", background: isInWatchlist ? "rgba(229,9,20,0.2)" : "rgba(255,255,255,0.08)", border: "1px solid " + (isInWatchlist ? "#e50914" : "rgba(255,255,255,0.15)"), color: isInWatchlist ? "#e50914" : "#fff", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>
                   {isInWatchlist ? "♥ Saved" : "♡ Watchlist"}
                 </button>
               </div>
@@ -177,6 +162,8 @@ export default function App() {
   const [featured, setFeatured] = useState(null);
   const [selected, setSelected] = useState(null);
   const [selectedType, setSelectedType] = useState("movie");
+  const [playing, setPlaying] = useState(null);
+  const [playingType, setPlayingType] = useState("movie");
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
   const [genre, setGenre] = useState("");
@@ -196,11 +183,8 @@ export default function App() {
 
   const toggleWatchlist = (item, t) => {
     const exists = watchlist.find((w) => w.id === item.id);
-    if (exists) {
-      saveWatchlist(watchlist.filter((w) => w.id !== item.id));
-    } else {
-      saveWatchlist([...watchlist, Object.assign({}, item, { _type: t })]);
-    }
+    if (exists) saveWatchlist(watchlist.filter((w) => w.id !== item.id));
+    else saveWatchlist([...watchlist, Object.assign({}, item, { _type: t })]);
   };
 
   const isInWatchlist = (id) => watchlist.some((w) => w.id === id);
@@ -227,11 +211,8 @@ export default function App() {
       setMovies(results);
       setTotalPages(Math.min(data.total_pages || 1, 20));
       if (p === 1 && results.length > 0) setFeatured(results[0]);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
   useEffect(() => {
@@ -245,11 +226,8 @@ export default function App() {
   };
 
   const handleTab = (t) => { setTab(t); setPage(1); setQuery(""); setSearch(""); setGenre(""); setSection("popular"); };
-
-  const handleSelect = (item, type) => {
-    setSelected(item);
-    setSelectedType(type || (tab === "tvshows" ? "tv" : "movie"));
-  };
+  const handleSelect = (item, type) => { setSelected(item); setSelectedType(type || (tab === "tvshows" ? "tv" : "movie")); };
+  const handlePlay = (item, type) => { setPlaying(item); setPlayingType(type); };
 
   const genres = tab === "tvshows" ? TV_GENRES : MOVIE_GENRES;
   const displayItems = tab === "watchlist" ? watchlist : movies;
@@ -264,6 +242,8 @@ export default function App() {
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
+      {playing && <VideoPlayer item={playing} type={playingType} onClose={() => setPlaying(null)} />}
+
       {featured && !query && tab !== "watchlist" && (
         <div style={{ position: "relative", height: 460, overflow: "hidden" }}>
           <img src={featured.backdrop_path ? BACKDROP + featured.backdrop_path : ""} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -277,10 +257,10 @@ export default function App() {
             </div>
             <p style={{ fontSize: 13, color: "#ccc", lineHeight: 1.6, marginBottom: 14, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{featured.overview}</p>
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => handleSelect(featured)} style={{ padding: "10px 22px", background: "#e50914", border: "none", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>▶ Watch Now</button>
-              <button onClick={() => toggleWatchlist(featured, tab === "tvshows" ? "tv" : "movie")} style={{ padding: "10px 18px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>
-                {isInWatchlist(featured.id) ? "♥ Saved" : "+ Watchlist"}
-              </button>
+              <button onClick={() => handlePlay(featured, tab === "tvshows" ? "tv" : "movie")}
+                style={{ padding: "10px 22px", background: "#e50914", border: "none", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>▶ Watch Now</button>
+              <button onClick={() => handleSelect(featured)}
+                style={{ padding: "10px 18px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>ℹ Info</button>
             </div>
           </div>
         </div>
@@ -344,35 +324,6 @@ export default function App() {
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 14 }}>
             {displayItems.map((item) => (
-              <Card
-                key={item.id}
-                item={item}
-                onClick={handleSelect}
+              <Card key={item.id} item={item} onClick={handleSelect}
                 isInWatchlist={isInWatchlist(item.id)}
-                onWatchlist={toggleWatchlist}
-                type={tab === "tvshows" ? "tv" : "movie"}
-              />
-            ))}
-          </div>
-        )}
-        {!loading && tab !== "watchlist" && displayItems.length > 0 && (
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 12, marginTop: 28 }}>
-            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #333", background: "transparent", color: page === 1 ? "#333" : "#fff", cursor: page === 1 ? "default" : "pointer", fontSize: 12 }}>← Prev</button>
-            <span style={{ color: "#666", fontSize: 12 }}>{page} / {totalPages}</span>
-            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #333", background: "transparent", color: page === totalPages ? "#333" : "#fff", cursor: page === totalPages ? "default" : "pointer", fontSize: 12 }}>Next →</button>
-          </div>
-        )}
-      </div>
-
-      {selected && (
-        <Modal
-          item={selected}
-          onClose={() => setSelected(null)}
-          onWatchlist={toggleWatchlist}
-          isInWatchlist={isInWatchlist(selected.id)}
-          type={selectedType}
-        />
-      )}
-    </div>
-  );
-}
+                o
