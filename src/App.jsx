@@ -111,9 +111,17 @@ function Modal({ item, onClose, onWatchlist, isInWatchlist, type }) {
               <p style={{ fontSize: 14, color: "#ccc", lineHeight: 1.7, marginBottom: 16 }}>{item.overview || "No description available."}</p>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 {trailer && (
-                  <button onClick={() => setShowTrailer(true)} style={{ padding: "10px 20px", background: "#e50914", border: "none", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>▶ Watch Trailer</button>
+                  <button onClick={() => setShowTrailer(true)} style={{ padding: "10px 20px", background: "#e50914", border: "none", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>▶ Trailer</button>
                 )}
-                <button onClick={() => onWatchlist(item, type)} style={{ padding: "10px 20px", background: isInWatchlist ? "rgba(229,9,20,0.2)" : "rgba(255,255,255,0.1)", border: `1px solid ${isInWatchlist ? "#e50914" : "rgba(255,255,255,0.2)"}`, color: isInWatchlist ? "#e50914" : "#fff", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>
+                <a href={`https://www.hotstar.com/in/search?q=${encodeURIComponent(title)}`} target="_blank" rel="noreferrer"
+                  style={{ padding: "10px 16px", background: "#1a1a2e", border: "1px solid #1f80e0", color: "#1f80e0", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  🎬 Hotstar
+                </a>
+                <a href={`https://www.sonyliv.com/search?q=${encodeURIComponent(title)}`} target="_blank" rel="noreferrer"
+                  style={{ padding: "10px 16px", background: "#1a1a2e", border: "1px solid #f5a623", color: "#f5a623", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  📺 SonyLIV
+                </a>
+                <button onClick={() => onWatchlist(item, type)} style={{ padding: "10px 16px", background: isInWatchlist ? "rgba(229,9,20,0.2)" : "rgba(255,255,255,0.1)", border: `1px solid ${isInWatchlist ? "#e50914" : "rgba(255,255,255,0.2)"}`, color: isInWatchlist ? "#e50914" : "#fff", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>
                   {isInWatchlist ? "♥ Saved" : "♡ Watchlist"}
                 </button>
               </div>
@@ -296,21 +304,4 @@ export default function App() {
               <Card key={item.id} item={item} onClick={handleSelect}
                 isInWatchlist={isInWatchlist(item.id)}
                 onWatchlist={toggleWatchlist}
-                type={tab === "movies" || tab === "anime" ? "movie" : "tv"} />
-            ))}
-          </div>
-        )}
-
-        {!loading && tab !== "watchlist" && displayItems.length > 0 && (
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 12, marginTop: 28 }}>
-            <button onClick={() => setPage(p => Math.max(1,p-1))} disabled={page===1} style={{ padding: "8px 18px", borderRadius: 8, border: "1px solid #333", background: "transparent", color: page===1?"#333":"#fff", cursor: page===1?"default":"pointer", fontSize: 13 }}>← Prev</button>
-            <span style={{ color: "#666", fontSize: 13 }}>{page} / {totalPages}</span>
-            <button onClick={() => setPage(p => Math.min(totalPages,p+1))} disabled={page===totalPages} style={{ padding: "8px 18px", borderRadius: 8, border: "1px solid #333", background: "transparent", color: page===totalPages?"#333":"#fff", cursor: page===totalPages?"default":"pointer", fontSize: 13 }}>Next →</button>
-          </div>
-        )}
-      </div>
-
-      {selected && <Modal item={selected} onClose={() => setSelected(null)} onWatchlist={toggleWatchlist} isInWatchlist={isInWatchlist(selected.id)} type={selectedType} />}
-    </div>
-  );
-}
+                type={tab === "movies
