@@ -41,8 +41,8 @@ function Stars({ n }) {
 
 function Player({ item, kind, onClose }) {
   const url = kind === "tv"
-    ? "https://vidsrc.me/embed/tv?tmdb=" + item.id
-    : "https://vidsrc.me/embed/movie?tmdb=" + item.id;
+    ? "https://www.2embed.cc/embedtv/" + item.id
+    : "https://www.2embed.cc/embed/" + item.id;
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
