@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 
 const KEY = "2dca580c2a14b55200e784d157207b4d";
 const API = "https://api.themoviedb.org/3";
-const IMG = "https://image.tmdb.org/t/p/w500";
+const IMG = "https://image.tmdb.org/t/p/w342";
 const BG = "https://image.tmdb.org/t/p/original";
 
 const SECTIONS = [
@@ -62,7 +62,7 @@ function Card({ item, onInfo, onToggle, saved, kind }) {
     >
       <div onClick={() => onInfo(item, kind)}>
         <img src={item.poster_path ? IMG + item.poster_path : "https://placehold.co/130x195/111/333?text=" + encodeURIComponent(title.slice(0, 6))} alt={title}
-          style={{ width: "100%", aspectRatio: "2/3", objectFit: "cover", display: "block", transition: "opacity 0.3s" }} />
+          style={{ width: "100%", aspectRatio: "2/3", objectFit: "cover", display: "block", transition: "opacity 0.3s" }} loading="lazy" />
         <div style={{ position: "absolute", inset: 0, background: hovered ? "linear-gradient(to top, rgba(0,0,0,0.95) 40%, rgba(0,0,0,0.2) 100%)" : "linear-gradient(to top, rgba(0,0,0,0.85) 25%, transparent 65%)", transition: "all 0.3s" }} />
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "8px", transition: "all 0.3s" }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#fff", marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</div>
