@@ -103,17 +103,26 @@ function Card({ item, onInfo, onToggle, saved, kind }) {
 function Row({ section, onInfo, onToggle, inWl }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [visible, setVisible] = useState(false);
   const scrollRef = useRef(null);
+  const rowRef = useRef(null);
   const kind = section.id === "tv" ? "tv" : section.id === "anime" ? "anime_tv" : "movie";
 
   useEffect(() => {
+    const obs = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } }, { rootMargin: "200px" });
+    if (rowRef.current) obs.observe(rowRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!visible) return;
     fetch(section.url).then(r => r.json()).then(d => { setItems(d.results || []); setLoading(false); }).catch(() => setLoading(false));
-  }, [section.url]);
+  }, [visible, section.url]);
 
   const scroll = dir => { if (scrollRef.current) scrollRef.current.scrollBy({ left: dir * 400, behavior: "smooth" }); };
 
   return (
-    <div style={{ marginBottom: 32, animation: "fadeUp 0.5s ease" }}>
+    <div ref={rowRef} style={{ marginBottom: 32, animation: "fadeUp 0.5s ease" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", marginBottom: 10 }}>
         <div style={{ fontSize: 15, fontWeight: 800, color: "#fff" }}>{section.label}</div>
         <div style={{ display: "flex", gap: 6 }}>
