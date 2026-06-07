@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 
 const KEY = "2dca580c2a14b55200e784d157207b4d";
-const API = "https://api.themoviedb.org/3";
+const IMG = "https://wsrv.nl/?url=image.tmdb.org/t/p/w300";
 const IMG = "https://image.tmdb.org/t/p/w185";
 const BG = "https://image.tmdb.org/t/p/original";
 
