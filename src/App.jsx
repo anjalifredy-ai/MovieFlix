@@ -281,6 +281,12 @@ function InfoModal({ item, kind, onClose, onPlay, onToggle, saved }) {
                     🎬 Trailer
                   </button>
                 )}
+                <a href={"https://multimovies.shop/?s=" + encodeURIComponent(item.title || item.name || "")} target="_blank" rel="noreferrer"
+                  style={{ padding: "10px 16px", background: "rgba(255,165,0,0.12)", border: "1px solid rgba(255,165,0,0.3)", color: "#ffa500", borderRadius: 10, fontSize: 13, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", transition: "all 0.2s" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(255,165,0,0.22)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "rgba(255,165,0,0.12)"}>
+                  🎬 MultiMovies
+                </a>
                 <button onClick={() => onToggle(item, kind)}
                   style={{ padding: "10px 16px", background: saved ? "rgba(229,9,20,0.18)" : "rgba(255,255,255,0.05)", border: "1px solid " + (saved ? "#e50914" : "rgba(255,255,255,0.1)"), color: saved ? "#e50914" : "#ccc", borderRadius: 10, fontSize: 13, cursor: "pointer", transition: "all 0.2s" }}>
                   {saved ? "♥ Saved" : "♡ Save"}
