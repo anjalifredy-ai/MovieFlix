@@ -47,24 +47,27 @@ function getServerUrl(item, kind, season, episode, serverIdx) {
 // NETFLIX INTRO ANIMATION
 function NetflixIntro({ onDone }) {
   useEffect(() => {
-    const t = setTimeout(onDone, 3000);
+    const t = setTimeout(onDone, 3200);
     return () => clearTimeout(t);
   }, []);
   return (
     <div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <style>{`
-        @keyframes nfStroke { 0%{stroke-dashoffset:1000;opacity:0} 30%{opacity:1} 100%{stroke-dashoffset:0;opacity:1} }
-        @keyframes nfFill { 0%,60%{fill:transparent} 100%{fill:#e50914} }
-        @keyframes nfGlow { 0%,60%{filter:none} 100%{filter:drop-shadow(0 0 30px #e50914) drop-shadow(0 0 60px #e50914aa)} }
-        @keyframes nfFade { 0%,80%{opacity:1} 100%{opacity:0} }
-        @keyframes nfBg { 0%{background:#000} 80%{background:#000} 100%{background:#000} }
-        .nf-svg { animation: nfFade 3s ease forwards; }
-        .nf-path { stroke-dasharray:1000; stroke-dashoffset:1000; animation: nfStroke 2s ease forwards, nfFill 2s ease forwards, nfGlow 2s ease forwards; }
+        @keyframes mfReveal { 0%{opacity:0;transform:scale(0.8)} 30%{opacity:1;transform:scale(1.05)} 60%{transform:scale(1)} 85%{opacity:1} 100%{opacity:0} }
+        @keyframes mfLine { 0%{width:0} 60%{width:100%} 100%{width:100%} }
+        @keyframes mfGlow { 0%,100%{text-shadow:0 0 20px rgba(229,9,20,0.5)} 50%{text-shadow:0 0 60px rgba(229,9,20,0.9),0 0 100px rgba(229,9,20,0.5)} }
+        .mf-wrap { animation: mfReveal 3.2s ease forwards; }
+        .mf-text { animation: mfGlow 3.2s ease infinite; }
+        .mf-line { animation: mfLine 1.5s ease forwards; }
       `}</style>
-      <svg className="nf-svg" width="120" height="200" viewBox="0 0 120 200">
-        <path className="nf-path" d="M10 10 L10 190 L45 190 L45 110 L75 190 L110 190 L110 10 L75 10 L75 90 L45 10 Z"
-          fill="transparent" stroke="#e50914" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
+      <div className="mf-wrap" style={{ textAlign: "center" }}>
+        <div className="mf-text" style={{ fontSize: 52, fontWeight: 900, color: "#e50914", letterSpacing: 6, fontFamily: "system-ui, sans-serif" }}>
+          MOVIEFLIX
+        </div>
+        <div style={{ marginTop: 10, height: 3, background: "rgba(229,9,20,0.3)", borderRadius: 3, overflow: "hidden" }}>
+          <div className="mf-line" style={{ height: "100%", background: "linear-gradient(90deg,#e50914,#ff6b6b)", borderRadius: 3 }} />
+        </div>
+      </div>
     </div>
   );
 }
@@ -281,7 +284,7 @@ function InfoModal({ item, kind, onClose, onPlay, onToggle, saved }) {
                     🎬 Trailer
                   </button>
                 )}
-                <a href={"https://multimovies.shop/?s=" + encodeURIComponent(item.title || item.name || "")} target="_blank" rel="noreferrer"
+                <a href={"https://multimovies.wtf/?s=" + encodeURIComponent(item.title || item.name || "")} target="_blank" rel="noreferrer"
                   style={{ padding: "10px 16px", background: "rgba(255,165,0,0.12)", border: "1px solid rgba(255,165,0,0.3)", color: "#ffa500", borderRadius: 10, fontSize: 13, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", transition: "all 0.2s" }}
                   onMouseEnter={e => e.currentTarget.style.background = "rgba(255,165,0,0.22)"}
                   onMouseLeave={e => e.currentTarget.style.background = "rgba(255,165,0,0.12)"}>
