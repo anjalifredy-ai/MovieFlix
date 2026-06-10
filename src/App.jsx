@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 
 const KEY = "2dca580c2a14b55200e784d157207b4d";
 const API = "https://api.themoviedb.org/3";
-const IMG = "https://image.tmdb.org/t/p/w300";
+const IMG = "/api/img?p=";
 const BG = "https://image.tmdb.org/t/p/original";
 
 const SECTIONS = [
@@ -41,7 +41,9 @@ function getServerUrl(item, kind, season, episode, serverIdx) {
   const e = episode || 1;
   if (serverIdx === 0) return isTv ? "https://www.2embed.cc/embedtv/" + id + "&s=" + s + "&e=" + e : "https://www.2embed.cc/embed/" + id;
   if (serverIdx === 1) return isTv ? "https://vidsrc.to/embed/tv/" + id + "/" + s + "/" + e : "https://vidsrc.to/embed/movie/" + id;
-  return isTv ? "https://vidsrc.me/embed/tv?tmdb=" + id + "&season=" + s + "&episode=" + e : "https://vidsrc.me/embed/movie?tmdb=" + id;
+  if (serverIdx === 2) return isTv ? "https://vidsrc.me/embed/tv?tmdb=" + id + "&season=" + s + "&episode=" + e : "https://vidsrc.me/embed/movie?tmdb=" + id;
+  if (serverIdx === 3) return isTv ? "https://vidsrc.xyz/embed/tv?tmdb=" + id + "&season=" + s + "&episode=" + e : "https://vidsrc.xyz/embed/movie?tmdb=" + id;
+  return isTv ? "https://embed.su/embed/tv/" + id + "/" + s + "/" + e : "https://embed.su/embed/movie/" + id;
 }
 
 // NETFLIX INTRO ANIMATION
@@ -186,7 +188,7 @@ function Player({ item, kind, season, episode, onClose }) {
           {item.title || item.name}{season ? " · S" + s + "E" + e : ""}
         </span>
         <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-          {["Server 1", "Server 2", "Server 3"].map((label, i) => (
+          {["S1", "S2", "S3", "S4", "S5"].map((label, i) => (
             <button key={i} onClick={() => setServer(i)}
               style={{ padding: "5px 12px", borderRadius: 8, border: server === i ? "1px solid #e50914" : "1px solid #333", background: server === i ? "rgba(229,9,20,0.25)" : "rgba(255,255,255,0.05)", color: server === i ? "#e50914" : "#aaa", fontSize: 11, cursor: "pointer", fontWeight: 600, transition: "all 0.2s" }}>
               {label}
@@ -289,6 +291,18 @@ function InfoModal({ item, kind, onClose, onPlay, onToggle, saved }) {
                   onMouseEnter={e => e.currentTarget.style.background = "rgba(255,165,0,0.22)"}
                   onMouseLeave={e => e.currentTarget.style.background = "rgba(255,165,0,0.12)"}>
                   🎬 MultiMovies
+                </a>
+                <a href={"https://hdhub4u.med/?s=" + encodeURIComponent(item.title || item.name || "")} target="_blank" rel="noreferrer"
+                  style={{ padding: "10px 16px", background: "rgba(0,200,100,0.12)", border: "1px solid rgba(0,200,100,0.3)", color: "#00c864", borderRadius: 10, fontSize: 13, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", transition: "all 0.2s" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(0,200,100,0.22)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "rgba(0,200,100,0.12)"}>
+                  🎥 HDHub4u
+                </a>
+                <a href={"https://movies4u.as/?s=" + encodeURIComponent(item.title || item.name || "")} target="_blank" rel="noreferrer"
+                  style={{ padding: "10px 16px", background: "rgba(100,100,255,0.12)", border: "1px solid rgba(100,100,255,0.3)", color: "#6464ff", borderRadius: 10, fontSize: 13, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", transition: "all 0.2s" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(100,100,255,0.22)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "rgba(100,100,255,0.12)"}>
+                  🍿 Movies4u
                 </a>
                 <button onClick={() => onToggle(item, kind)}
                   style={{ padding: "10px 16px", background: saved ? "rgba(229,9,20,0.18)" : "rgba(255,255,255,0.05)", border: "1px solid " + (saved ? "#e50914" : "rgba(255,255,255,0.1)"), color: saved ? "#e50914" : "#ccc", borderRadius: 10, fontSize: 13, cursor: "pointer", transition: "all 0.2s" }}>
